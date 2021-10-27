@@ -1,12 +1,12 @@
 <?php
 
-namespace Waldorfshop2\Widgets\Footer;
+namespace Waldorfshop3\Widgets\Footer;
 
 use Ceres\Widgets\Helper\BaseWidget;
 
 class FooterListWidget extends BaseWidget
 {
-    protected $template = "Waldorfshop2::Widgets.Footer.FooterListWidget";
+    protected $template = "Waldorfshop3::Widgets.Footer.FooterListWidget";
 
     protected function getTemplateData($widgetSettings, $isPreview)
     {
