@@ -49,6 +49,7 @@
 import OrderPropertyListGroup from "./OrderPropertyListGroup.vue";
 
 export default {
+    name: "order-property-list",
 
     components:
     {
@@ -83,6 +84,17 @@ export default {
         };
     },
 
+    mounted()
+    {
+        if (App.useVariationOrderProperties)
+        {
+            // go to first side, because variation order properties could differ between variations
+            document.addEventListener("onVariationChanged", () => {
+                this.activeSlide = 0;
+            });
+        }
+    },
+
     computed:
     {
         sortedGroupedProperties()
@@ -114,7 +126,7 @@ export default {
 
         renderOrderPropertyList()
         {
-            return (this.$store.getters[`${this.itemId}/currentItemVariation`].filter.isSalable && this.variationGroupedProperties.length) || App.isShopBuilder;
+            return this.variationGroupedProperties.length || App.isShopBuilder;
         },
 
         variationMissingProperties()
@@ -123,8 +135,7 @@ export default {
         },
 
         variationMarkInvalidProperties() {
-            const currentVariation = this.$store.getters[`${this.itemId}/currentItemVariation`];
-            return currentVariation && currentVariation.variationMarkInvalidProperties;
+            return this.$store.state.items[this.itemId] && this.$store.state.items[this.itemId].variationMarkInvalidProperties;
         }
     },
 

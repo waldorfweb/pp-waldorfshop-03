@@ -200,6 +200,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
 
 
 
@@ -264,9 +266,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       this.isLoading = true;
       this.sendOrderReturn().then(function (response) {
-        $(_this.$refs.orderReturnConfirmation).modal("hide");
-        Object(_services_UrlService__WEBPACK_IMPORTED_MODULE_9__["navigateTo"])(window.location.origin);
         _services_NotificationService__WEBPACK_IMPORTED_MODULE_7__["default"].success(_this.$translate("Ceres::Template.returnConfirmationInfo")).closeAfter(3000);
+        $(_this.$refs.orderReturnConfirmation).modal("hide");
+
+        if (_this.$store.getters.isLoggedIn) {
+          Object(_services_UrlService__WEBPACK_IMPORTED_MODULE_9__["navigateTo"])(App.urls.myAccount);
+        } else {
+          Object(_services_UrlService__WEBPACK_IMPORTED_MODULE_9__["navigateTo"])(App.urls.confirmation);
+        }
       }, function (error) {
         _this.isLoading = false;
         $(_this.$refs.orderReturnConfirmation).modal("hide");
@@ -492,6 +499,9 @@ __webpack_require__.r(__webpack_exports__);
     },
     isDataFieldVisible: function isDataFieldVisible(value) {
       return this.itemDetailsData.includes(value);
+    },
+    getOrderPropertyFileUrl: function getOrderPropertyFileUrl(property) {
+      return property.fileUrl || this.$options.filters.fileUploadPath(property.value);
     }
   }
 });
@@ -831,7 +841,8 @@ var render = function() {
                     attrs: {
                       type: "button",
                       "data-dismiss": "modal",
-                      "aria-hidden": "true"
+                      "aria-hidden": "true",
+                      "aria-label": _vm.$translate("Ceres::Template.closeIcon")
                     }
                   },
                   [_vm._v("×")]
@@ -1079,8 +1090,8 @@ var render = function() {
                                   {
                                     staticClass: "text-primary text-appearance",
                                     attrs: {
-                                      href: _vm._f("fileUploadPath")(
-                                        property.value
+                                      href: _vm.getOrderPropertyFileUrl(
+                                        property
                                       ),
                                       target: "_blank"
                                     }

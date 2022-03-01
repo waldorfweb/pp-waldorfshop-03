@@ -45,6 +45,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+  name: "basket-list",
   components: {
     BasketListItem: _BasketListItem_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
@@ -331,6 +332,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
 
 
 
@@ -340,6 +346,7 @@ var NotificationService = __webpack_require__(/*! ../../../services/Notification
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+  name: "basket-list-item",
   components: {
     BasketSetComponentList: _BasketSetComponentList_vue__WEBPACK_IMPORTED_MODULE_26__["default"]
   },
@@ -956,43 +963,67 @@ var render = function() {
                               return _vm._l(propertyGroup.properties, function(
                                 property
                               ) {
-                                return _c("div", [
-                                  propertyGroup.name
-                                    ? _c("strong", [
-                                        _vm._v(
-                                          _vm._s(propertyGroup.name) + ": "
-                                        )
-                                      ])
-                                    : _vm._e(),
-                                  _vm._v(" "),
-                                  _c("span", [
-                                    _vm._v(_vm._s(property.names.name))
-                                  ]),
-                                  _vm._v(" "),
-                                  property.cast === "file"
-                                    ? _c("span", [
-                                        _c("a", {
-                                          attrs: {
-                                            href: _vm._f("propertyFileUrl")(
-                                              property.values.value
-                                            ),
-                                            target: "_blank"
-                                          },
+                                return _c(
+                                  "div",
+                                  [
+                                    propertyGroup.name
+                                      ? _c("strong", [
+                                          _vm._v(
+                                            _vm._s(propertyGroup.name) + ": "
+                                          )
+                                        ])
+                                      : _vm._e(),
+                                    _vm._v(" "),
+                                    _c("span", [
+                                      _vm._v(_vm._s(property.names.name))
+                                    ]),
+                                    _vm._v(" "),
+                                    property.cast === "file"
+                                      ? _c("span", [
+                                          _c("a", {
+                                            attrs: {
+                                              href: _vm._f("propertyFileUrl")(
+                                                property.values.value
+                                              ),
+                                              target: "_blank"
+                                            },
+                                            domProps: {
+                                              innerHTML: _vm._s(
+                                                property.values.value
+                                              )
+                                            }
+                                          })
+                                        ])
+                                      : property.cast === "multiSelection" &&
+                                        property.values[0] !== undefined
+                                      ? [
+                                          _c(
+                                            "ul",
+                                            { staticClass: "pl-3" },
+                                            _vm._l(property.values, function(
+                                              multiSelectProperty
+                                            ) {
+                                              return _c("li", [
+                                                _vm._v(
+                                                  _vm._s(
+                                                    multiSelectProperty.value
+                                                  )
+                                                )
+                                              ])
+                                            }),
+                                            0
+                                          )
+                                        ]
+                                      : _c("span", {
                                           domProps: {
                                             innerHTML: _vm._s(
                                               property.values.value
                                             )
                                           }
                                         })
-                                      ])
-                                    : _c("span", {
-                                        domProps: {
-                                          innerHTML: _vm._s(
-                                            property.values.value
-                                          )
-                                        }
-                                      })
-                                ])
+                                  ],
+                                  2
+                                )
                               })
                             }
                           )
@@ -1135,27 +1166,35 @@ var render = function() {
                                 "strong",
                                 { class: { colon: property.type.length > 0 } },
                                 [
-                                  _vm._v(
-                                    _vm._s(property.name) +
-                                      " (" +
-                                      _vm._s(
-                                        _vm.$translate(
-                                          "Ceres::Template.basketIncludeAbbr"
+                                  _vm._v(_vm._s(property.name) + " "),
+                                  _vm.$options.filters.propertySurcharge(
+                                    _vm.basketItem.variation.data.properties,
+                                    property.propertyId
+                                  ) > 0
+                                    ? [
+                                        _vm._v(
+                                          "(" +
+                                            _vm._s(
+                                              _vm.$translate(
+                                                "Ceres::Template.basketIncludeAbbr"
+                                              )
+                                            ) +
+                                            " " +
+                                            _vm._s(
+                                              _vm._f("currency")(
+                                                _vm._f("propertySurcharge")(
+                                                  _vm.basketItem.variation.data
+                                                    .properties,
+                                                  property.propertyId
+                                                )
+                                              )
+                                            ) +
+                                            ")"
                                         )
-                                      ) +
-                                      " " +
-                                      _vm._s(
-                                        _vm._f("currency")(
-                                          _vm._f("propertySurcharge")(
-                                            _vm.basketItem.variation.data
-                                              .properties,
-                                            property.propertyId
-                                          )
-                                        )
-                                      ) +
-                                      ")"
-                                  )
-                                ]
+                                      ]
+                                    : _vm._e()
+                                ],
+                                2
                               ),
                               _vm._v(" "),
                               _c(

@@ -1,5 +1,14 @@
 <template>
-    <div class="cookie-bar" :class="{ 'out': !isVisible, 'border-top bg-white': isVisible, 'fixed-bottom': !isShopBuilder || false }">
+    <!-- v-show is required to prevent CLS for ssr -->
+    <div
+        v-show="!$ceres.isSSR"   
+        class="cookie-bar"
+        :class="{
+            'out': !isVisible,
+            'border-top bg-white': isVisible,
+            'fixed-bottom': !isShopBuilder || false
+        }"
+    >
         <div class="container-max" v-if="isVisible">
             <div class="row py-3" v-show="!isExpanded" :class="classes" :style="styles">
                 <div class="col-12 col-md-8">
@@ -8,14 +17,16 @@
 
                     <div>
                         <template v-for="consentGroup in consentGroups">
-                            <span v-if="consentGroup.consents.length > 0" class="custom-control custom-switch custom-control-appearance d-md-inline-block mr-3">
+                            <span v-if="consentGroup.consents.length > 0"
+                                  class="custom-control custom-switch custom-control-appearance d-md-inline-block mr-3"
+                                  :key="consentGroup.key">
                                 <input type="checkbox"
                                        class="custom-control-input"
-                                       :id="_uid + '-group-' + consentGroup.key"
+                                       :id="_cid + '-group-' + consentGroup.key"
                                        :disabled="consentGroup.necessary"
                                        :checked="isConsented(consentGroup.key) || consentGroup.necessary"
                                        @change="toggleConsent(consentGroup.key)">
-                                <label class="custom-control-label" :for="_uid + '-group-' + consentGroup.key">
+                                <label class="custom-control-label" :for="_cid + '-group-' + consentGroup.key">
                                     <template v-if="consentGroup.label.length > 0">
                                         {{ consentGroup.label }}
                                     </template>
@@ -30,15 +41,22 @@
                     </div>
 
                 </div>
-                <div class="col-12 col-md-4 pt-3 pt-md-0">
+                <div class="button-order col-12 col-md-4 pt-3 pt-md-0">
                     <button
-                        class="btn btn-primary btn-block btn-appearance"
+                        class="btn btn-block btn-default btn-appearance button-order-1 mb-2 mt-0"
                         @click="acceptAll(); close()"
                         data-testing="cookie-bar-accept-all">
                         {{ $translate("Ceres::Template.cookieBarAcceptAll") }}
                     </button>
                     <button
-                        class="btn btn-default btn-block"
+                        v-if="showRejectAll"
+                        class="btn btn-block btn-default btn-appearance button-order-2 mb-2 mt-0"
+                        @click="denyAll(); close()"
+                        data-testing="cookie-bar-deny-all">
+                        {{ $translate("Ceres::Template.cookieBarDenyAll") }}
+                    </button>
+                    <button
+                        class="btn btn-block btn-default button-order-3 mb-2 mt-0"
                         @click="storeConsents(); close()"
                         data-testing="cookie-bar-save">
                         {{ $translate("Ceres::Template.cookieBarSave") }}
@@ -50,7 +68,7 @@
                 <div class="col-12 mb-3">
                     <privacy-settings :consent-groups="consentGroups"></privacy-settings>
                 </div>
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-3">
                     <a
                         href="#"
                         class="text-primary text-appearance d-inline-block mb-3"
@@ -59,22 +77,34 @@
                         {{ $translate("Ceres::Template.cookieBarBack") }}
                     </a>
                 </div>
-                <div class="col-6 col-md-3">
-                    <button
-                        class="btn btn-block btn-primary btn-appearance"
-                        @click="acceptAll(); close()"
-                        data-testing="cookie-bar-expanded-accept-all">
-                        {{ $translate("Ceres::Template.cookieBarAcceptAll") }}
-                    </button>
-                </div>
-                <div class="col-6 col-md-3">
-                    <button
-                        class="btn btn-block btn-block btn-default"
-                        @click="storeConsents(); close()"
-                        data-testing="cookie-bar-expanded-save">
-                        {{ $translate("Ceres::Template.cookieBarSave") }}
-                    </button>
-                </div>
+                <div class="col-12 col-md-9">
+                    <div class="row">
+                        <div class="col-12 col-md-4 mt-2 mt-md-0">
+                           <button
+                                class="btn btn-block btn-default btn-appearance"
+                                @click="acceptAll(); close()"
+                                data-testing="cookie-bar-expanded-accept-all">
+                                {{ $translate("Ceres::Template.cookieBarAcceptAll") }}
+                            </button>
+                        </div>
+                        <div v-if="showRejectAll" class="col-12 col-md-4 mt-2 mt-md-0">
+                            <button
+                                class="btn btn-block btn-default btn-appearance"
+                                @click="denyAll(); close()"
+                                data-testing="cookie-bar-expanded-deny-all">
+                                {{ $translate("Ceres::Template.cookieBarDenyAll") }}
+                            </button>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <button
+                                class="btn btn-block btn-default"
+                                @click="storeConsents(); close()"
+                                data-testing="cookie-bar-expanded-save">
+                                {{ $translate("Ceres::Template.cookieBarSave") }}
+                            </button>
+                        </div>
+                    </div>
+                </div>  
             </div>
         </div>
 
@@ -88,16 +118,22 @@
 </template>
 
 <script>
-import Vue from "vue";
 import { mapMutations } from "vuex";
+import { ComponentIdMixin } from "../../mixins/componentId.mixin";
 
 export default {
     props:
     {
         styles: String,
         classes: String,
-        consentGroups: Object
+        consentGroups: Object,
+        showRejectAll: {
+            type: Boolean,
+            default: true
+        },
     },
+
+    mixins: [ComponentIdMixin], // Experimental mixin, may be removed in the future.
 
     data()
     {
@@ -136,7 +172,8 @@ export default {
     {
         ...mapMutations([
             "storeConsents",
-            "acceptAll"
+            "acceptAll",
+            "denyAll"
         ]),
 
         close()
